@@ -1,0 +1,18 @@
+docker run -p 8080:8080 --rm -v $PWD/path_to_logs:/zeppelin/logs -v $PWD/path_to_data:/zeppelin/seed -v $PWD/path_to_notebook:/zeppelin/notebook -e ZEPPELIN_LOG_DIR='/zeppelin/logs' -e ZEPPELIN_NOTEBOOK_DIR='/zeppelin/notebook' --name zeppelin apache/zeppelin:0.9.0
+
+
+docker exec -it master /bin/bash
+
+# master container
+cd ~/fake-data-pipeline
+pip3 install -r requirements.txt
+python3 ~/fake-data-pipeline/data-generators/iot_devices.py home 
+python3 ~/fake-data-pipeline/data-generators/iot_devices.py seoul   
+
+python3 ~/fake-data-pipeline/data-generators/words.py
+
+
+docker exec -it master /bin/bash
+
+cd /root/fake-data-pipeline/StreamHandler
+spark-submit --class StreamHandler --master yarn --packages "org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.0" --driver-class-path driver/postgresql-42.2.5.jar --jars driver/postgresql-42.2.5.jar target/scala-2.11/stream-handler_2.11-1.0.jar 
