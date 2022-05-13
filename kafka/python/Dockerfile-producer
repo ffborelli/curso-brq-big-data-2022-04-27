@@ -1,0 +1,9 @@
+FROM python:3.9
+# rodar um comando para instalar os modulos faltando  (mysql,kafka, pandas)
+RUN pip
+
+# Copiar o scrip python ara dentro do container
+
+# executar via CMD os script python
+CMD ["python3 consumer.py &"]
+CMD ["python3 producer.py &"]
