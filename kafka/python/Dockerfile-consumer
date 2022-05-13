@@ -1,7 +1,15 @@
 FROM python:3.9
+
+#COPY . .
 # rodar um comando para instalar os modulos faltando  (mysql,kafka, pandas)
-RUN pip
+#RUN pip install -r requirements.txt
+RUN pip install mysql-connector-python kafka-python pandas
 
 # Copiar o scrip python ara dentro do container
-
+COPY . .
 # executar via CMD os script python
+CMD ["consumer.py"]
+
+ENTRYPOINT ["python"]
+
+# docker build -t consumer -f Dockerfile-consumer  .
