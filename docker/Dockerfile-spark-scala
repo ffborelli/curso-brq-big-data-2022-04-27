@@ -1,0 +1,12 @@
+FROM ubuntu:latest
+
+RUN apt-get update && apt install scala openjdk-8-jdk nano wget -y
+RUN wget https://mirror.nbtelecom.com.br/apache/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz
+RUN tar zxvf spark-2.4.8-bin-hadoop2.7.tgz 
+RUN ln -s spark-2.4.8-bin-hadoop2.7 spark
+RUN rm spark-2.4.8-bin-hadoop2.7.tgz
+
+ENV SPARK_HOME=/spark
+ENV PATH=$SPARK_HOME/bin:$PATH
+
+# docker build -t spark-scala .
