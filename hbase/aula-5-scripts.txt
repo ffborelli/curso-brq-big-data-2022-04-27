@@ -1,0 +1,64 @@
+hbase shell
+
+status
+
+table help
+
+whoami
+
+//criar uma tabela com o nome 'tabela' e família colunar com o nome 'familiacolunar'
+create 'tabela', 'familiacolunarrrrr'
+
+//descrever tabela
+describe 'tabela'
+
+//deletar tabela
+drop 'tabela'
+
+//adicionando Família Colunar
+alter 'tabela', NAME => 'familiacolunar'
+
+//remover Família Colunar da tabela 
+disable 'tabela'
+alter 'tabela', NAME => 'familiacolunarrrrr', METHOD => 'delete'
+
+enable 'tabela'
+
+//mostrar dados da tabela
+scan 'usuario'
+
+create 'usuario', 'info', 'notas'
+describe 'usuario'
+
+//adiconando a coluna idade, row key 1000
+put 'usuario', '1000', 'info:idade', '25'
+put 'usuario', '1000', 'info:nome', 'Fabrizio'
+put 'usuario', '1000', 'info:sobrenome', 'Borelli'
+
+get 'usuario', '1000'
+
+alter 'usuario', NAME => 'info', VERSIONS => 3
+
+//Alterando a idade do usuário da row key 1000
+put 'usuario', '1000', 'info:idade', '26'
+get 'usuario', '1000', { COLUMN => 'info:idade', VERSIONS => 3 }
+
+put 'usuario', '1000', 'info:idade', '27'
+put 'usuario', '1000', 'info:idade', '28'
+put 'usuario', '1000', 'info:idade', '29'
+put 'usuario', '1000', 'info:idade', '30'
+get 'usuario', '1000', { COLUMN => 'info:age', VERSIONS => 3 }
+
+
+put 'usuario', '1001', 'info:nome', 'Aluno'
+
+//removendo coluna sobrenome da row key 1000
+delete 'usuario', '1000', 'info:sobrenome'
+
+//removendo todas as colunas da row key 1000
+deleteall 'usuario', '1000'
+get 'usuario', '1000'
+
+scan 'usuario', { COLUMNS => 'info:nome', FILTER => "ValueFilter ( = , 'binaryprefix:Fab')" }
+
+
