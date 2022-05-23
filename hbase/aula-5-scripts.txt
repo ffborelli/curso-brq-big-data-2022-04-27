@@ -47,7 +47,7 @@ put 'usuario', '1000', 'info:idade', '27'
 put 'usuario', '1000', 'info:idade', '28'
 put 'usuario', '1000', 'info:idade', '29'
 put 'usuario', '1000', 'info:idade', '30'
-get 'usuario', '1000', { COLUMN => 'info:age', VERSIONS => 3 }
+get 'usuario', '1000', { COLUMN => 'info:idade', VERSIONS => 3 }
 
 
 put 'usuario', '1001', 'info:nome', 'Aluno'
