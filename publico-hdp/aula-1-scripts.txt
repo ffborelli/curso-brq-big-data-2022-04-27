@@ -1,0 +1,148 @@
+senha ambari
+
+admin
+fgvnew ou hdpfgvnew
+
+
+--------------------------------------------------------------------------------------------
+reset ambari password
+
+su postgres
+psql
+\c ambari
+
+update ambari.users set user_password = '538916f8943ec225d97a9a86a2c6ec0818c1cd400e09e03b660fdaaec4af29ddbb6f2b1033b81b00' where user_id = 1;
+
+\q
+
+service ambari-server restart
+
+user ambari: admin
+senha ambari: admin
+---------------------------------------------HDFS-----------------------------------------------
+
+wget https://cursos.grandeporte.com.br/files/fgv/publico-hdp.zip --no-check-certificate
+
+unzip publico-hdp.zip
+
+cd publico-hdp
+
+hdfs dfs -ls
+hdfs dfs -mkdir livros
+hdfs dfs  -put melville-moby-106.txt livros
+hdfs dfs  -cat livros/melville-moby-106.txt
+
+//verificando fator de replicação
+hadoop fs -stat %r livros/melville-moby-106.txt
+
+hadoop fs -setrep 3 livros/melville-moby-106.txt
+
+
+hdfs dfs -mkdir /locacao
+cd /locacao
+hdfs dfs -put *.csv /locacao
+hdfs dfs -ls /locacao
+hdfs dfs  -cat  /locacao/clientes.csv
+
+------------------------------------MapReduce--------------------------------------------------------
+
+--- Criar pastas para deixar os dados de entrada no HDFS
+hadoop fs -mkdir /user/root/wordcount /user/root/wordcount/input 
+
+mkdir -p /root/wordcount
+mkdir -p /root/wordcount/build
+
+-- copiar arquivo WordCount.java para a pasta /root/wordcount
+
+cp /root/publico-hdp/WordCount.java /root/wordcount
+
+-- compilar arquivos JAVA
+javac -cp /usr/hdp/2.6.5.0-292/hadoop/*:/usr/hdp/2.6.5.0-292/hadoop-mapreduce/* WordCount.java -d build -Xlint 
+
+-- criar jar 
+jar -cvf wordcount.jar -C build/ .
+
+-- executar Map Reduce
+hadoop jar wordcount.jar org.myorg.WordCount /user/root/wordcount/input /user/root/wordcount/output
+
+------------------------------------------Hive--------------------------------------------------
+
+
+create database locacao;
+
+CREATE EXTERNAL TABLE CLIENTES (idcliente int, cnh string, cpf string, validadecnh date, nome string, datacadastro date, datanascimento date, telefone string, status string) 
+row format delimited fields terminated by ', ' STORED as TEXTFILE;
+
+LOAD DATA INPATH '/locacao/clientes.csv' INTO TABLE CLIENTES;
+
+SELECT * FROM CLIENTES;
+
+
+
+CREATE EXTERNAL TABLE VEICULOS (idveiculo int, dataaquisicao date, ano int , modelo string,
+placa string, status string, diaria double) row format delimited fields terminated by ', ' STORED as TEXTFILE;
+
+LOAD DATA INPATH '/locacao/veiculos.csv' INTO TABLE VEICULOS;
+
+SELECT * FROM VEICULOS;
+
+
+
+CREATE EXTERNAL TABLE DESPACHANTES (iddespachante int, nome string, status string , filial string) row format delimited fields terminated by ', ' STORED as TEXTFILE;
+
+LOAD DATA INPATH '/locacao/despachantes.csv' INTO TABLE DESPACHANTES;
+
+SELECT * FROM DESPACHANTES;
+
+
+
+CREATE EXTERNAL TABLE LOCACAO (idlocacao int, idcliente int, iddespachante int , idveiculo int, datalocacao date, dataentrega date, total double) row format delimited fields terminated by ', ' STORED as TEXTFILE;
+
+LOAD DATA INPATH '/locacao/locacao.csv' INTO TABLE LOCACAO;
+
+SELECT * FROM LOCACAO;
+
+
+
+select distinct modelo from VEICULOS;
+select * from VEICULOS where status <> 'Disponivel';
+select * from locacao inner join despachantes on (locacao.iddespachante = despachantes.iddespachante);
+select (veic.modelo), sum(loc.total) from locacao loc inner join veiculos veic on ( loc.idveiculo = veic.idveiculo) group by veic.modelo;
+
+select (veic.modelo), sum(loc.total) from locacao loc inner join veiculos veic on ( loc.idveiculo = veic.idveiculo)
+	inner join despachantes desp on (desp.iddespachante = loc.iddespachante)
+	group by veic.modelo, desp.nome;
+	
+select (veic.modelo), sum(loc.total) from locacao loc inner join veiculos veic on ( loc.idveiculo = veic.idveiculo)
+	inner join despachantes desp on (desp.iddespachante = loc.iddespachante)
+	group by veic.modelo, desp.nome
+	having sum(loc.total ) > 5000;	
+
+--------------------------------------------------------------------------------------------
+
+hdfs dfs -rm -r /user/root/
+
+mysql -u root -p 
+
+password: hortonworks1
+
+
+CREATE USER 'fabrizio'@'localhost' IDENTIFIED BY 'fgv';
+GRANT ALL PRIVILEGES ON *.* TO 'fabrizio'@'localhost';
+FLUSH PRIVILEGES;
+
+SOURCE employees.sql
+
+sqoop import --connect jdbc:mysql://localhost:3306/employees \
+--username root \
+--password hortonworks1 \
+--table employees \
+--split-by emp_no \
+--hive-import \
+--create-hive-table \
+--hive-table locacao.employees \
+--m  1;
+
+
+
+sqoop import-all-tables --connect jdbc:mysql://localhost/employees --username root --password hortonworks1 --hive-import --hive-overwrite --hive-database employees --create-hive-table --m 1;
