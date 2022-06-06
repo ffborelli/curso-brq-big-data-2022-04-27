@@ -1,0 +1,56 @@
+# Instalação
+
+## Instalar NodeJs:
+
+https://nodejs.org/en/download/ 
+
+## Documentação
+
+Entrar via browser no link abaixo para acessar a documentação:
+
+```
+    https://localhost:8443/automation-api/startHere.html
+```
+
+## Download Command Line Interface (CLI)
+
+Entrar via browser no link abaixo para download:
+
+```
+    https://localhost:8443/automation-api/ctm-cli.tgz
+```
+
+## Instalar o CLI Control-M
+
+No terminal, executar:
+
+```
+    npm -g install ctm-cli.tgz
+```
+
+## Testar a instalação CLI 
+
+No terminal, executar:
+
+```
+    ctm
+```
+
+# Scripts
+
+Entrar dentro da pasta control-m:
+
+```
+    cd control-m
+```
+
+Rodar os scripts abaixo para começar as orquestrações:
+
+```
+    ctm run AutomationAPISampleFlow.json --interactive
+```
+
+```
+    ctm run command-job.json --interactive
+    ctm run status "761d4552-cf0f-405d-95f6-27ced9b28b46"
+```

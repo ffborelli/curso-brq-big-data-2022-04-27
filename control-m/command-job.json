@@ -1,0 +1,48 @@
+{
+    "Defaults" : {
+        "Application" : "CommandApp",
+        "SubApplication" : "CommandApp",
+        "RunAs" : "workbench",
+        "Host" : "workbench",
+
+        "Job": {
+            "When" : {
+                "Months": ["JAN", "OCT", "DEC"],
+                "MonthDays":["22","1","11"],
+                "WeekDays":["MON","TUE", "WED", "THU", "FRI"],
+                "FromTime":"0300",
+                "ToTime":"2100"
+            },
+            "ActionIfFailure" : {
+                "Type": "If",       
+                "CompletionStatus": "NOTOK",
+                
+                "mailToTeam": {
+                    "Type": "Mail",
+                    "Message": "%%JOBNAME failed",
+                    "To": "team@mycomp.com"
+                }
+            }
+        }
+    },
+
+    "command-job": {
+        "Type": "Folder",
+        "Comment" : "Code reviewed by Fabrizio",
+
+        "CommandJob": {
+            "Type": "Job:Command",
+            "Command": "echo 'works' ; ls -l; cat /etc/passwd ; "
+        },
+
+        "CommandJob2": {
+            "Type": "Job:Command",
+            "Command": "ls -l /home/workbench/ctm/scripts "
+        },
+
+        "Flow": {
+            "Type": "Flow",
+            "Sequence": ["CommandJob", "CommandJob2"]
+        }
+    }
+}
