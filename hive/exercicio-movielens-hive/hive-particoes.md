@@ -4,7 +4,20 @@ A partição de tabela Hive é uma maneira de dividir uma tabela grande em tabel
 
 A cláusula PARTITIONED BY é utilizada para criar partições.
 
-## criando a tabela
+## criando a tabela stage
+
+```
+    CREATE TABLE zipcodes_stage(
+    RecordNumber int,
+    Country string,
+    City string,
+    Zipcode int,
+    state string)
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ',';
+```
+
+## criando a tabela 
 
 ```
     CREATE TABLE zipcodes(
@@ -20,13 +33,33 @@ A cláusula PARTITIONED BY é utilizada para criar partições.
 ## copiando dados para o HDFS
 
 ```
-    hdfs dfs -put zipcodes.csv /user/cloudera
+    hdfs dfs -put zipcodes20.csv /user/cloudera
 ```
 
-## carregando dados para a tabela do Hive
+## carregando dados para a tabela stage do Hive
 
 ```
-    LOAD DATA INPATH '/user/cloudera/zipcodes.csv'
+    LOAD DATA INPATH '/user/cloudera/zipcodes20.csv' OVERWRITE INTO TABLE zipcodes_stage ;
+```
+## Particionamento variável
+
+O modo não estrito significa que permitirá que toda a partição seja dinâmica. Também pode ser chamado de particionamento variável
+
+```
+    set hive.exec.dynamic.partition.mode=nonstrict;
+```
+
+## carregando dados para a tabela particionada do Hive
+
+```
+   insert overwrite table zipcodes partition(state)
+        select
+            RecordNumber int,
+            Country string,
+            City string,
+            Zipcode int,
+            state string
+        from zipcodes_stage;
 ```
 
 ## mostrar as partições
