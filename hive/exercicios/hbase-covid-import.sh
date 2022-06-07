@@ -24,6 +24,10 @@ hdfs dfs -rm /tmp/c.csv > /dev/null
 hdfs dfs -put c.csv /tmp
 echo 'Copiando novo arquivo CSV para o HDFS : /tmp/c.csv'
 
+# rodar script do HBase
+
+hbase shell < script_hbase.sql 
+
 # rodar script de importacao de tabelas Hbase
 
 echo 'Importando dados para o HBase'
