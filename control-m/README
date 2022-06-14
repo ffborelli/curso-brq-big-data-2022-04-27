@@ -44,6 +44,17 @@ Entrar dentro da pasta control-m:
     cd control-m
 ```
 
+ctm environment workbench::add
+
+ctm environment set workbench
+
+ctm environment add devEnvironment "https://localhost:8443/automation-api" emuser empassword 
+
+ctm environment add devEnvironment2 "https://127.0.0.1:8443/automation-api" emuser empassword 
+
+ctm environment set devEnvironment2
+
+
 Rodar os scripts abaixo para começar as orquestrações:
 
 ```

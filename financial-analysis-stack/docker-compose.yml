@@ -1,0 +1,126 @@
+version: '2.4'
+
+x-spark-worker: 
+    &spark-worker
+    image: bde2020/spark-worker:2.4.5-hadoop2.7
+    restart: always
+    depends_on: 
+        - spark-master
+    environment: 
+        - SPARK_MASTER=spark://spark-master:7077
+
+services:
+
+    redis:
+        image: redis:latest
+        command: /usr/local/etc/redis/redis.conf
+        restart: always
+        ports: 
+            - 6379:6379
+        volumes: 
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+            - redis:/data
+
+    namenode:
+        image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+        restart: always
+        volumes:
+          - namenode:/hadoop/dfs/name
+        environment:
+          - CLUSTER_NAME=test
+        env_file:
+          - ./local.env
+        ports:
+          - 50070:50070
+
+    datanode:
+        image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+        volumes:
+            - datanode:/hadoop/dfs/data
+        restart: always
+        depends_on: 
+            - namenode
+        env_file:
+            - ./local.env
+        environment:
+            SERVICE_PRECONDITION: namenode:50070
+        ports:
+            - 50075:50075
+
+    hue:
+        image: bde2020/hdfs-filebrowser:3.11
+        restart: always
+        depends_on: 
+            - namenode
+        environment:
+            - NAMENODE_HOST=namenode
+        ports:
+            - 8088:8088
+
+    hive-metastore-postgresql:
+        image: bde2020/hive-metastore-postgresql:2.3.0
+        restart: always
+
+    hive-metastore:
+        image: bde2020/hive:2.3.2-postgresql-metastore
+        restart: always
+        depends_on: 
+            - datanode
+            - namenode
+            - hive-metastore-postgresql
+        env_file:
+            - ./local.env
+        command: /opt/hive/bin/hive --service metastore
+        environment:
+            SERVICE_PRECONDITION: namenode:50070 datanode:50075 hive-metastore-postgresql:5432
+        ports:
+            - 9083:9083
+
+    hive-server:
+        build: 
+            context: ./hive/.
+        restart: always
+        depends_on: 
+            - hive-metastore
+        env_file:
+            - ./local.env
+        volumes: 
+            - ./data:/data
+        environment:
+            HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: jdbc:postgresql://hive-metastore/metastore
+            SERVICE_PRECONDITION: hive-metastore:9083
+        ports:
+            - 10000:10000
+
+    spark-master:
+        image: bde2020/spark-master:2.4.5-hadoop2.7
+        restart: always
+        ports: 
+            - 8080:8080
+            - 7077:7077
+        environment: 
+            - ENABLE_INIT_DAEMON=false
+    
+    spark-worker-1:
+        <<: *spark-worker
+        ports: 
+            - 8081:8081
+
+    app:
+        build: 
+            context: ./app/.
+        env_file:
+            - ./app.env
+        environment: 
+            - ENABLE_INIT_DAEMON=false
+
+    gui:
+        build: 
+            context: ./gui/.
+        ports:
+            - 3000:3000
+
+volumes:
+    namenode:
+    datanode:
+    redis:

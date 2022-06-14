@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stocks</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+</head>
+
+<body>
+    <div class="columns" style="margin-top: 100px;">
+        <div class="column"></div>
+        <div class="column is-half">
+            <h1 class="is-size-3">All Stocks</h1>
+            <p style="margin-bottom: 10px;">Select a stock to view it's linear regression model</p>
+            <% for (let i = 0; i < stocks.length; i++) { %>
+            <a class="button is-rounded" href="/<%= stocks[i] %>"> <%= stocks[i] %> </a>
+            <% } %>
+        </div>
+        <div class="column"></div>
+    </div>
+</body>
+
+</html>

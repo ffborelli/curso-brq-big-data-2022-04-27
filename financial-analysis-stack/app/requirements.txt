@@ -1,0 +1,6 @@
+pyhive==0.6.2
+thrift==0.10.0
+sasl3==0.2.11
+thrift-sasl==0.4.2
+numpy==1.18.2
+redis==3.4.1
