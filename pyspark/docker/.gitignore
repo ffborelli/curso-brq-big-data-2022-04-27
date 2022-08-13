@@ -1,0 +1,6 @@
+*.csv
+*.parquet
+.ipynb_checkpoints
+.ipython
+.local
+.cache
