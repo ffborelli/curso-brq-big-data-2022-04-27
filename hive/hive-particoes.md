@@ -52,13 +52,13 @@ O modo não estrito significa que permitirá que toda a partição seja dinâmic
 ## carregando dados para a tabela particionada do Hive
 
 ```
-   insert overwrite table zipcodes partition(state)
+ insert overwrite table zipcodes partition(state)
         select
-            RecordNumber int,
-            Country string,
-            City string,
-            Zipcode int,
-            state string
+			state,
+            RecordNumber,
+            Country,
+            City,
+            Zipcode
         from zipcodes_stage;
 ```
 
